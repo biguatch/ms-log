@@ -72,6 +72,6 @@ func (logger *Logger) SentryWarn(args ...interface{}) {
 	}
 }
 
-func (logger *Logger) logrus() *logrus.Logger {
+func (logger *Logger) Logrus() *logrus.Logger {
 	return logger.logger
 }
