@@ -71,3 +71,7 @@ func (logger *Logger) SentryWarn(args ...interface{}) {
 		logger.sentry.CaptureMessage(fmt.Sprint(args...))
 	}
 }
+
+func (logger *Logger) logrus() *logrus.Logger {
+	return logger.logger
+}
