@@ -25,53 +25,89 @@ func NewLogger(config *Config, lr *logrus.Logger, sentry *sentry.Hub) *Logger {
 }
 
 func (logger *Logger) Info(args ...interface{}) {
-	logger.logger.Info(args...)
+	if logger.CanLog() {
+		logger.logger.Info(args...)
+	}
 }
 
 func (logger *Logger) Debug(args ...interface{}) {
-	logger.logger.Debug(args...)
+	if logger.CanLog() {
+		logger.logger.Debug(args...)
+	}
 }
 
 func (logger *Logger) Trace(args ...interface{}) {
-	logger.logger.Trace(args...)
+	if logger.CanLog() {
+		logger.logger.Trace(args...)
+	}
 }
 
 func (logger *Logger) Warn(args ...interface{}) {
-	logger.SentryWarn(args...)
-	logger.logger.Warn(args...)
+	if logger.CanSentry() {
+		logger.SentryWarn(args...)
+	}
+
+	if logger.CanLog() {
+		logger.logger.Warn(args...)
+	}
 }
 
 func (logger *Logger) Error(args ...interface{}) {
-	logger.SentryException(errors.New(fmt.Sprint(args...)))
-	logger.logger.Error(args...)
+	if logger.CanSentry() {
+		logger.SentryException(errors.New(fmt.Sprint(args...)))
+	}
+
+	if logger.CanLog() {
+		logger.logger.Error(args...)
+	}
 }
 
 func (logger *Logger) Fatal(args ...interface{}) {
-	logger.SentryException(errors.New(fmt.Sprint(args...)))
-	logger.logger.Fatal(args...)
+	if logger.CanSentry() {
+		logger.SentryException(errors.New(fmt.Sprint(args...)))
+	}
+
+	if logger.CanLog() {
+		logger.logger.Fatal(args...)
+	}
 }
 
 func (logger *Logger) Panic(args ...interface{}) {
-	logger.SentryException(errors.New(fmt.Sprint(args...)))
-	logger.logger.Panic(args...)
+	if logger.CanSentry() {
+		logger.SentryException(errors.New(fmt.Sprint(args...)))
+	}
+
+	if logger.CanLog() {
+		logger.logger.Panic(args...)
+	}
 }
 
 func (logger *Logger) Print(v ...interface{}) {
-	logger.logger.Print(v...)
+	if logger.CanLog() {
+		logger.logger.Print(v...)
+	}
 }
 
 func (logger *Logger) SentryException(exception error) {
-	if logger.sentry != nil {
+	if logger.CanSentry() {
 		logger.sentry.CaptureException(exception)
 	}
 }
 
 func (logger *Logger) SentryWarn(args ...interface{}) {
-	if logger.sentry != nil {
+	if logger.CanSentry() {
 		logger.sentry.CaptureMessage(fmt.Sprint(args...))
 	}
 }
 
 func (logger *Logger) Logrus() *logrus.Logger {
 	return logger.logger
+}
+
+func (logger *Logger) CanLog() bool {
+	return logger.logger != nil
+}
+
+func (logger *Logger) CanSentry() bool {
+	return logger.sentry != nil
 }
